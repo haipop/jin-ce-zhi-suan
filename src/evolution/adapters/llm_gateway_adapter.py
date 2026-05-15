@@ -10,6 +10,56 @@ from typing import Any, Dict, List, Optional
 from src.utils.config_loader import ConfigLoader
 
 
+def _extract_text_like_content(value: Any) -> str:
+    """递归提取兼容响应中的文本内容，兼容字符串、分段数组与嵌套字典。"""
+
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        # 保留模型原始文本，仅在边界处做 trim。
+        return value.strip()
+    if isinstance(value, list):
+        # 兼容 content parts / output items 等数组结构。
+        parts = [_extract_text_like_content(item) for item in value]
+        return "".join(part for part in parts if part).strip()
+    if isinstance(value, dict):
+        # 常见 OpenAI 兼容字段按优先级兜底提取。
+        for key in ("text", "content", "output_text", "reasoning_content"):
+            text = _extract_text_like_content(value.get(key))
+            if text:
+                return text
+        return ""
+    # 标量类型做安全兜底，避免直接抛错。
+    return str(value).strip()
+
+
+def _extract_openai_response_content(data: Dict[str, Any]) -> str:
+    """从 OpenAI 兼容响应中提取最终可展示文本。"""
+
+    if not isinstance(data, dict):
+        return ""
+    choices = data.get("choices") or []
+    if isinstance(choices, list) and choices:
+        first = choices[0] if isinstance(choices[0], dict) else {}
+        message = first.get("message", {}) if isinstance(first, dict) else {}
+        # 先取标准 message.content，再回退 reasoning_content / text。
+        content = _extract_text_like_content(message.get("content"))
+        if content:
+            return content
+        content = _extract_text_like_content(message.get("reasoning_content"))
+        if content:
+            return content
+        content = _extract_text_like_content(first.get("text"))
+        if content:
+            return content
+    # 兼容少数代理或 responses 风格返回。
+    for key in ("output_text", "output", "content"):
+        content = _extract_text_like_content(data.get(key))
+        if content:
+            return content
+    return ""
+
+
 @dataclass
 class UnifiedLLMConfig:
     """统一的大模型配置，优先读取 evolution.llm，其次兼容 data_provider 历史配置。"""
@@ -259,7 +309,8 @@ class UnifiedLLMClient:
             detail = exc.read().decode("utf-8", errors="ignore") if exc.fp else str(exc)
             raise RuntimeError(f"HTTP {int(exc.code)}: {detail[:300]}") from exc
         data = json.loads(raw)
-        content = str((((data.get("choices") or [{}])[0].get("message") or {}).get("content", "") or "")).strip()
+        # 兼容 reasoning_content、content parts 与代理自定义输出结构。
+        content = _extract_openai_response_content(data)
         if not content:
             raise RuntimeError("openai_compatible 响应内容为空")
         return content
@@ -287,7 +338,8 @@ class UnifiedLLMClient:
         if not choices:
             raise RuntimeError("zhipu 响应缺少 choices")
         message = getattr(choices[0], "message", None)
-        content = str(getattr(message, "content", "") or "").strip()
+        # 智谱 SDK 的 content 在不同模型版本中可能是字符串或结构化内容。
+        content = _extract_text_like_content(getattr(message, "content", ""))
         if not content:
             raise RuntimeError("zhipu 响应内容为空")
         return content
@@ -328,10 +380,10 @@ class UnifiedLLMClient:
             raise RuntimeError(f"HTTP {int(exc.code)}: {detail[:300]}") from exc
         data = json.loads(raw)
         message = data.get("message", {}) if isinstance(data.get("message"), dict) else {}
-        content = str(message.get("content", "") or "").strip()
+        content = _extract_text_like_content(message.get("content"))
         if not content:
             # 兼容 OpenAI 代理风格响应。
-            content = str((((data.get("choices") or [{}])[0].get("message") or {}).get("content", "") or "")).strip()
+            content = _extract_openai_response_content(data)
         if not content:
             raise RuntimeError("ollama 响应内容为空")
         return content

@@ -14147,7 +14147,8 @@ class GeneratedStrategyTemplate(BaseImplementedStrategy):
             if (runBtn && runIcon && runLabel) {
                 if (historySyncRunning) {
                     runBtn.className = 'bg-amber-700 hover:bg-amber-600 text-white px-4 py-2 rounded font-bold text-sm transition-all border border-amber-500 min-w-[128px]';
-                    runIcon.className = 'fa-solid fa-spinner';
+                    // 同步进行中时显式追加 fa-spin，确保 Font Awesome 转圈动画生效。
+                    runIcon.className = 'fa-solid fa-spinner fa-spin';
                     runLabel.innerText = historySyncStopRequested ? '停止中' : '同步进行中';
                 } else {
                     runBtn.className = 'bg-teal-700 hover:bg-teal-600 text-white px-4 py-2 rounded font-bold text-sm transition-all border border-teal-500 min-w-[128px]';
@@ -14158,7 +14159,8 @@ class GeneratedStrategyTemplate(BaseImplementedStrategy):
             if (stopBtn && stopIcon && stopLabel) {
                 if (historySyncRunning) {
                     stopBtn.className = 'bg-rose-700 hover:bg-rose-600 text-white px-4 py-2 rounded font-bold text-sm transition-all border border-rose-500 min-w-[128px]';
-                    stopIcon.className = historySyncStopRequested ? 'fa-solid fa-spinner' : 'fa-solid fa-stop';
+                    // 停止请求发出后也保持动态转圈，避免用户误判为界面卡住。
+                    stopIcon.className = historySyncStopRequested ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-stop';
                     stopLabel.innerText = historySyncStopRequested ? '停止中' : '停止同步';
                     stopBtn.disabled = !!historySyncStopRequested;
                 } else {
