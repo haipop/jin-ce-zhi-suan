@@ -1,3 +1,4 @@
+# Legacy compatibility fallback. Prefer `uv sync` from pyproject.toml.
 pandas
 numpy
 tqdm

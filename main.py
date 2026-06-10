@@ -30,7 +30,6 @@ from src.utils.mysql_provider import MysqlProvider
 from src.utils.postgres_provider import PostgresProvider
 from src.utils.tdx_provider import TdxProvider
 from src.utils.config_loader import ConfigLoader
-from src.utils.data_generator import generate_mock_data
 from src.utils.constants import INITIAL_CAPITAL
 
 def main():

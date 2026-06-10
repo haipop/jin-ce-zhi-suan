@@ -4,6 +4,109 @@
 
 **基础地址 (Base URL):** `http://localhost:8000`
 
+服务端默认端口来自 `config.json` 的 `system.server_port`，也可用环境变量 `SERVER_PORT` 或启动参数覆盖：
+
+```bash
+python server.py --port 8001
+```
+
+本文保留重点接口的详细示例，并提供当前代码路由索引。若接口细节与路由索引冲突，以 `server.py` 中的 FastAPI 路由和 Pydantic 请求模型为准。
+
+## 当前路由索引
+
+以下索引按当前 `server.py` 路由整理，用于快速确认“代码里是否存在这个接口”。
+
+### 页面与静态资源
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/` | 主控制台页面 |
+| GET | `/report` | 报告页面 |
+| GET | `/logo.png` | Logo 静态资源 |
+| GET | `/favicon.ico` | Favicon |
+
+### 策略、回测、实盘控制
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/search` | 搜索接口 |
+| GET | `/api/strategies` | 策略列表 |
+| POST | `/api/control/start_backtest` | 启动回测 |
+| POST | `/api/control/start_live` | 启动实盘/模拟盘 |
+| POST | `/api/control/stop` | 停止当前任务 |
+| POST | `/api/control/switch_strategy` | 切换策略 |
+| POST | `/api/control/set_source` | 切换当前数据源 |
+| POST | `/api/control/reload_strategies` | 热加载策略 |
+| GET | `/api/status` | 完整状态 |
+| GET | `/api/status/light` | 轻量状态 |
+| GET | `/api/onboarding/health_check` | 新手检查 |
+| GET | `/api/onboarding/network_diag` | 网络诊断 |
+
+### 策略管理
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/strategy_manager/list` | 策略元数据列表 |
+| GET | `/api/strategy_manager/detail` | 策略详情 |
+| GET | `/api/strategy_manager/prompt_from_strategy` | 从策略生成提示词 |
+| POST | `/api/strategy_manager/toggle` | 启停策略 |
+| POST | `/api/strategy_manager/analyze` | AI 分析/生成策略 |
+| POST | `/api/strategy_manager/analyze_market` | 基于市场状态生成策略 |
+| GET | `/api/strategy_manager/next_id` | 获取下一个策略 ID |
+| POST | `/api/strategy_manager/add` | 新增策略 |
+| POST | `/api/strategy_manager/update` | 更新策略 |
+| POST | `/api/strategy_manager/delete` | 删除策略 |
+| GET | `/api/strategy_manager/screener_examples` | 选股器示例 |
+
+### 数据源、配置与模型
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/config` | 读取配置 |
+| POST | `/api/config/save` | 保存配置 |
+| POST | `/api/config/test_data_source_connectivity` | 数据源连通性检查 |
+| POST | `/api/config/test_tushare_connectivity` | TuShare 连通性检查 |
+| POST | `/api/config/test_tdx_connectivity` | TDX 连通性检查 |
+| POST | `/api/llm/ping` | LLM 连通性检查 |
+| GET | `/api/llm/status` | LLM 配置状态 |
+
+### 通达信、BLK、选股器与批量回测
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| POST | `/api/tdx/generate_formula` | 由提示词生成通达信公式 |
+| POST | `/api/tdx/compile` | 编译通达信公式 |
+| POST | `/api/tdx/validate_formula` | 校验通达信公式 |
+| POST | `/api/tdx/import_strategy` | 导入单个通达信策略 |
+| POST | `/api/tdx/import_pack` | 批量导入通达信策略 |
+| POST | `/api/tdx/pipeline/run` | 公式包 + BLK + 批量任务流水线 |
+| GET | `/api/tdx/capabilities` | 编译能力查询 |
+| POST | `/api/blk/parse` | 解析 BLK |
+| POST | `/api/blk/import_stock_pool` | 导入 BLK 标的池 |
+| GET/POST | `/api/screener/*` | 选股器筛选、导出、AI 解析、批量回测入口 |
+| POST | `/api/batch/generate_tasks` | 生成批量任务 |
+| POST | `/api/batch/run/start` | 启动批量任务 |
+| GET | `/api/batch/run/status` | 批量任务状态 |
+| POST | `/api/batch/run/stop` | 停止批量任务 |
+| GET | `/api/batch/overview` | 批量结果概览 |
+
+### 报告、一致性、进化、通知
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/report/latest` | 最新报告 |
+| GET | `/api/report/history` | 报告历史 |
+| GET | `/api/report/{report_id}` | 报告详情 |
+| POST | `/api/report/{report_id}/ai_review` | 报告 AI 复盘 |
+| POST | `/api/report/{report_id}/ai_review_buffett` | Buffett 风格复盘 |
+| POST | `/api/report/delete` | 删除报告 |
+| GET/POST | `/api/consistency/*` | 快照、回放、对比、一致性报告 |
+| POST/GET/PUT/DELETE | `/api/evolution/*` | 策略进化运行、历史、家族统计 |
+| GET/POST | `/api/live/fund_pool*` | 实盘资金池查询、重置、修正 |
+| GET/POST | `/api/webhook/*` | Webhook 失败队列、重推、测试、审计 |
+| POST/GET | `/api/history_sync/*` | 历史同步运行、调度、记录、股票池刷新 |
+| WebSocket | `/ws` | 前端实时事件流 |
+
 ---
 
 ## 1. 策略热更新 (Hot Reload)
@@ -520,7 +623,7 @@ curl -X POST http://localhost:8000/api/control/stop
 
 | 参数名 | 类型 | 必填 | 说明 | 示例值 |
 | :--- | :--- | :--- | :--- | :--- |
-| `provider_source` | string | 否 | 拉取源，常见为 `default/tushare/tdx/duckdb` | `"tdx"` |
+| `provider_source` | string | 否 | 拉取源，支持 `default/tushare/akshare/tdx/mysql/postgresql/duckdb`；不传时使用配置 | `"tdx"` |
 | `write_mode` | string | 否 | 写入模式，支持 `api` 或 `direct_db` | `"direct_db"` |
 | `direct_db_source` | string | 否 | 当 `write_mode=direct_db` 时的目标数据库类型 | `"duckdb"` |
 | `tables` | string[] | 否 | 需要同步的表，未传时使用系统默认值 | `["dat_1mins","dat_day"]` |
@@ -631,6 +734,26 @@ curl -X POST http://localhost:8000/api/control/stop
   }
 }
 ```
+
+### 10.3 历史同步状态、记录与调度
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/api/history_sync/status` | 当前同步服务状态和调度状态 |
+| POST | `/api/history_sync/stop` | 请求停止正在运行的同步任务 |
+| GET | `/api/history_sync/records` | 分页查询历史同步记录，参数 `limit`、`offset` |
+| GET | `/api/history_sync/records/{run_id}` | 查询单次同步详情 |
+| POST | `/api/history_sync/scheduler/start` | 开启定时同步，并保存调度配置 |
+| POST | `/api/history_sync/scheduler/stop` | 停止定时同步 |
+
+`/api/history_sync/scheduler/start` 的请求体与 `/api/history_sync/run` 基本一致，额外包含：
+
+| 参数名 | 类型 | 说明 |
+| --- | --- | --- |
+| `interval_minutes` | int | 调度间隔分钟 |
+| `scheduler_start_time` | string | 每日调度锚点时间，如 `09:30` |
+
+注意：调度启动接口会把调度相关配置写回 `config.json`，而 `/api/history_sync/run` 的一次性运行不会自动改全局默认值。
 
 **响应示例：**
 

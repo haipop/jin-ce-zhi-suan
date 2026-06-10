@@ -1,4 +1,6 @@
-新功能-时间驱动多Agent策略进化-预发布说明
+# 新功能说明：事件驱动多 Agent 策略进化
+
+本文按当前代码说明策略进化链路。AI/LLM 主要负责生成或改写候选策略；候选策略是否保留由回测指标和工程评分决定，不由模型直接主观打分。
 **亮点**
 - 事件驱动解耦：多Agent不直接互相调用，统一通过事件总线通信，扩展新Agent时对现有链路影响小。
 - 无侵入接入：不改原回测引擎与策略基类，Evolution 作为增量层独立演进。
@@ -50,6 +52,14 @@
 - `BacktestFinished`：多场景聚合指标（含 best_stock_code、best_timeframe）
 - `StrategyScored`：统一评分结果（仅用于记忆与是否入库判定）
 - `StrategyCommitted`：达到阈值后成功追加入库事件（含新策略ID、父策略ID、版本）
+
+**当前评分口径**
+
+- 评分入口：`src/evolution/memory/strategy_memory.py` 的 `MemoryAgent`。
+- 指标来源：`src/evolution/adapters/backtest_adapter.py` 聚合多标的、多周期回测结果。
+- 当前公式：`sharpe * 0.4 + win_rate * 0.2 + profit_factor * 0.2 - max(drawdown, 0) * 0.2`。
+- `AnalysisAgent` 当前输出 `analysis_source=rule_based`，主要根据评分结果和一致性报告生成改进建议。
+- LLM 参与候选策略生成、自然语言/公式转策略等环节，不替代工程评分。
 
 **启动接口参数（可覆盖配置）**
 - `POST /api/evolution/start` 现支持在启动时传入 profile 覆盖项，优先级高于配置中心默认值，仅对本次运行生效。

@@ -4,7 +4,7 @@
 
 **Goal:** 为手动历史增量同步入口增加 `ignore_checkpoint` 开关，并在 API 文档中补充该参数说明，使用户可以在页面上显式触发“强制重跑”。
 
-**Architecture:** 本次只改两个文件：`dashboard.html` 负责提供按钮区临时开关并在 `runHistorySync()` 中透传 `ignore_checkpoint`，`docs/API_DOCS.md` 负责补充 `/api/history_sync/run` 参数说明与示例。后端行为不再修改，继续复用已实现的 `ignore_checkpoint` 逻辑。
+**Architecture:** 本次只改两个文件：`dashboard.html` 负责提供按钮区临时开关并在 `runHistorySync()` 中透传 `ignore_checkpoint`，`docs/api/API_DOCS.md` 负责补充 `/api/history_sync/run` 参数说明与示例。后端行为不再修改，继续复用已实现的 `ignore_checkpoint` 逻辑。
 
 **Tech Stack:** HTML、原生 JavaScript、Markdown、现有 `dashboard.html` 配置表单收集逻辑
 
@@ -176,7 +176,7 @@ git commit -m "feat: expose history sync ignore checkpoint toggle"
 ```bash
 python - <<'PY'
 from pathlib import Path
-text = Path("docs/API_DOCS.md").read_text(encoding="utf-8")
+text = Path("docs/api/API_DOCS.md").read_text(encoding="utf-8")
 assert "ignore_checkpoint" in text, "API 文档尚未包含 ignore_checkpoint 参数"
 PY
 ```
@@ -214,7 +214,7 @@ Run:
 ```bash
 python - <<'PY'
 from pathlib import Path
-text = Path("docs/API_DOCS.md").read_text(encoding="utf-8")
+text = Path("docs/api/API_DOCS.md").read_text(encoding="utf-8")
 assert "ignore_checkpoint" in text
 assert "强制重跑" in text
 print("ok")
@@ -230,7 +230,7 @@ ok
 - [ ] **Step 4: 提交 API 文档改动**
 
 ```bash
-git add docs/API_DOCS.md
+git add docs/api/API_DOCS.md
 git commit -m "docs: document history sync ignore checkpoint parameter"
 ```
 
@@ -248,7 +248,7 @@ Run:
 python - <<'PY'
 from pathlib import Path
 dashboard = Path("dashboard.html").read_text(encoding="utf-8")
-docs = Path("docs/API_DOCS.md").read_text(encoding="utf-8")
+docs = Path("docs/api/API_DOCS.md").read_text(encoding="utf-8")
 assert "history-sync-ignore-checkpoint-toggle" in dashboard
 assert "ignore_checkpoint: ignoreCheckpoint" in dashboard
 assert "ignore_checkpoint" in docs
@@ -281,7 +281,7 @@ manual diagnostics gate
 - [ ] **Step 3: 提交最终收尾**
 
 ```bash
-git add dashboard.html docs/API_DOCS.md
+git add dashboard.html docs/api/API_DOCS.md
 git commit -m "feat: add manual history sync ignore checkpoint entry"
 ```
 

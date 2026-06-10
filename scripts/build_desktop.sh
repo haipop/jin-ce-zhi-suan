@@ -24,13 +24,19 @@ detect_python() {
 PYTHON="$(detect_python || die "未检测到 Python，请先安装")"
 step "使用解释器: $PYTHON"
 
-step "安装 PyInstaller..."
-"$PYTHON" -m pip install pyinstaller -q
+if command -v uv >/dev/null 2>&1 && [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
+  step "使用 uv 同步桌面打包依赖..."
+  uv sync --extra desktop-build
+  PYTHON="$PROJECT_ROOT/.venv/bin/python"
+else
+  step "安装 PyInstaller..."
+  "$PYTHON" -m pip install pyinstaller -q
 
-# 确保 macOS 菜单栏托盘依赖存在（pystray + Pillow + pyobjc）
-if [[ "$(uname)" == "Darwin" ]]; then
-  step "安装托盘依赖（pystray / Pillow / pyobjc）..."
-  "$PYTHON" -m pip install pystray Pillow pyobjc -q
+  # 确保 macOS 菜单栏托盘依赖存在（pystray + Pillow + pyobjc）
+  if [[ "$(uname)" == "Darwin" ]]; then
+    step "安装托盘依赖（pystray / Pillow / pyobjc）..."
+    "$PYTHON" -m pip install pystray Pillow pyobjc -q
+  fi
 fi
 
 step "开始打包（onedir 模式，首次约 5-10 分钟）..."

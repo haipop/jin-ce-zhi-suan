@@ -11,7 +11,14 @@ echo [build] Checking Python...
 "%PYTHON%" --version
 
 echo [build] Installing dependencies...
-"%PYTHON%" -m pip install pyinstaller -q
+where uv >nul 2>nul
+if "%ERRORLEVEL%"=="0" (
+    cd /d "%PROJECT_DIR%"
+    uv sync --extra desktop-build
+    set "PYTHON=%PROJECT_DIR%\.venv\Scripts\python.exe"
+) else (
+    "%PYTHON%" -m pip install pyinstaller -q
+)
 
 echo [build] Starting build (onedir mode, first run ~5-10 min)...
 cd /d "%PROJECT_DIR%"

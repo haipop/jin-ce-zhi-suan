@@ -68,7 +68,7 @@ detect_python() {
 
 PY_BOOT="$(detect_python || true)"
 if [[ -z "$PY_BOOT" ]]; then
-  err "未检测到 Python，请先安装 Python 3.9+ 后重试"
+  err "未检测到 Python，请先安装 Python 3.10+ 后重试"
   exit 1
 fi
 step "引导解释器: $PY_BOOT"
@@ -83,6 +83,10 @@ if [[ -f "$VENV_PATH/bin/python" ]]; then
 else
   PYTHON_CMD="$PY_BOOT"
   step "使用系统解释器: $PY_BOOT"
+fi
+
+if command -v uv >/dev/null 2>&1 && [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; then
+  step "依赖模式: pyproject.toml + uv.lock（建议先执行 uv sync）"
 fi
 
 # ---------------------------------------------------------------------------

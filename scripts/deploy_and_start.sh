@@ -69,12 +69,17 @@ else
 fi
 
 if [[ "$SKIP_INSTALL" != "1" ]]; then
-  step "升级 pip"
-  "$PYTHON_CMD" -m pip install --upgrade pip
-  step "安装 requirements.txt"
-  "$PYTHON_CMD" -m pip install -r "$PROJECT_ROOT/requirements.txt"
-  step "安装 WebSocket 运行依赖 uvicorn[standard]"
-  "$PYTHON_CMD" -m pip install "uvicorn[standard]"
+  if command -v uv >/dev/null 2>&1 && [[ -f "$PROJECT_ROOT/pyproject.toml" ]] && [[ "$SKIP_VENV" != "1" ]]; then
+    step "使用 uv 同步 pyproject.toml / uv.lock"
+    UV_PROJECT_ENVIRONMENT="$PROJECT_ROOT/$VENV_DIR" uv sync
+  else
+    step "升级 pip"
+    "$PYTHON_CMD" -m pip install --upgrade pip
+    step "安装 requirements.txt（兼容模式）"
+    "$PYTHON_CMD" -m pip install -r "$PROJECT_ROOT/requirements.txt"
+    step "安装 WebSocket 运行依赖 uvicorn[standard]"
+    "$PYTHON_CMD" -m pip install "uvicorn[standard]"
+  fi
 else
   step "跳过依赖安装"
 fi

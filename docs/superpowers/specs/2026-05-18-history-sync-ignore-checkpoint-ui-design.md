@@ -7,7 +7,7 @@
 现状问题有两个：
 
 - 手动执行入口 `dashboard.html` 还没有把这个参数透出给用户
-- `docs/API_DOCS.md` 还没有说明这个参数的用途和取值语义
+- `docs/api/API_DOCS.md` 还没有说明这个参数的用途和取值语义
 
 这会导致用户虽然可以通过直接构造 HTTP 请求使用该能力，但在日常操作中无法方便触发“强制重跑”，也不容易理解为什么同参执行时会被旧 checkpoint 全部跳过。
 
@@ -33,7 +33,7 @@
 本次改动只涉及以下两个位置：
 
 - `dashboard.html`
-- `docs/API_DOCS.md`
+- `docs/api/API_DOCS.md`
 
 本次不涉及以下位置：
 
@@ -52,7 +52,7 @@
 - 默认值：关闭
 - 仅在点击“增量同步”按钮发起本次请求时读取并透传到 `/api/history_sync/run`
 
-同时在 `docs/API_DOCS.md` 中补充该字段说明。
+同时在 `docs/api/API_DOCS.md` 中补充该字段说明。
 
 优点：
 
@@ -113,7 +113,7 @@
 
 ### 5.3 API Documentation
 
-在 `docs/API_DOCS.md` 的 `/api/history_sync/run` 章节中补充：
+在 `docs/api/API_DOCS.md` 的 `/api/history_sync/run` 章节中补充：
 
 - 参数名：`ignore_checkpoint`
 - 类型：`boolean`
@@ -164,5 +164,5 @@
 - `dashboard.html` 手动执行入口可勾选 `忽略检查点（强制重跑）`
 - 点击“增量同步”后，请求体可正确携带 `ignore_checkpoint`
 - 默认情况下不影响原有手动执行行为
-- `docs/API_DOCS.md` 已包含 `ignore_checkpoint` 参数说明和示例
+- `docs/api/API_DOCS.md` 已包含 `ignore_checkpoint` 参数说明和示例
 - 不改动配置中心和定时任务逻辑

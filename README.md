@@ -1,289 +1,251 @@
-<div align="center">
-  <img src="./logo.png" alt="金策智算 Logo" width="140" />
-  <h1>金策智算 · 智能投研决策系统</h1>
-  <p>基于唐朝的三省六部制度建立的量化系统，分权协同、风控闭环、强化回测与执行。</p>
-</div>
+# 金策智算 fork 维护版
 
-<p align="center">
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white" />
-  <img alt="Framework" src="https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white" />
-  <img alt="Frontend" src="https://img.shields.io/badge/UI-Dashboard-0A66C2?logo=googlechrome&logoColor=white" />
-  <img alt="Status" src="https://img.shields.io/badge/Status-Active-success" />
-  <img alt="Market" src="https://img.shields.io/badge/Market-A--Share-red" />
-</p>
+本仓库是从原始项目 [ScottZt/jin-ce-zhi-suan](https://github.com/ScottZt/jin-ce-zhi-suan) fork 而来，用于本地学习、验证、整理和二次维护。
 
-<span style="color:red">**⚠️ 当前Github发布是唯一官方版本，其他任何平台、论坛发布均非本人提供，注意风险甄别！**</span>
+请先明确这个关系：
 
-## 目录
+- 原始项目：`ScottZt/jin-ce-zhi-suan`
+- 原作者/上游仓库：<https://github.com/ScottZt/jin-ce-zhi-suan>
+- 本仓库：基于上游项目的 fork，不代表上游官方发布渠道
+- 原始版权、授权限制、免责声明以仓库内 [LICENSE](./LICENSE) 和上游项目说明为准
 
-- [项目简介](#项目简介)
-- [5分钟主线导航](#5分钟主线导航)
-- [功能地图（按场景）](#功能地图按场景)
-- [按角色快速进入](#按角色快速进入)
-- [免责声明与用户使用协议](#免责声明与用户使用协议)
-- [核心特性](#核心特性)
-- [架构设计](#架构设计)
-- [项目结构](#项目结构)
-- [快速开始](#快速开始)
-- [新增能力快速上手（TDX/BLK/组合回测）](#新增能力快速上手tdxblk组合回测)
-- [数据准备](#数据准备)
-- [数据源与使用条件](#数据源与使用条件)
-- [全局回测与实盘监控模板](#全局回测与实盘监控模板)
-- [安全基线](#安全基线)
-- [已知限制](#已知限制)
-- [Roadmap](#roadmap)
-- [贡献指南](#贡献指南)
+本 README 描述的是当前 fork 的运行方式和维护状态。涉及项目来源、授权、商业使用、投资风险等事项时，应优先阅读并遵守 `LICENSE`。
 
-## 项目简介
+## 项目定位
 
-本项目采用“三省六部”思想构建量化系统，把**策略生成、风控审核、执行清算**分层解耦，支持以下核心场景：
+金策智算是一个面向 A 股量化研究和回测验证的本地工具项目。项目使用“三省六部”的命名方式组织量化流程，把行情数据、策略信号、风控审核、执行撮合、资金核算和结果报告分层处理。
 
-- 历史回测与报告输出
-- 多策略统一管理（内置 + 自定义）
-- Web 面板配置与任务控制
+当前 fork 主要关注：
 
-![alt text](static/三省六部体系介绍.png)
+- 梳理项目结构和文档入口
+- 补充数据源配置说明
+- 保持本地可运行、可验证
+- 将 Python 依赖管理迁移到 `pyproject.toml + uv.lock`
+- 保留上游项目主体功能和命名体系
 
-## 5分钟主线导航
+本项目只适合学习、研究、回测和工程验证，不提供投资建议，不承诺收益，不应作为实盘交易依据。
 
-第一次用，先别管复杂功能，按这 5 步走就行：
+## 当前 fork 的主要差异
 
-1. 先启动：可先在项目根目录执行 `pip install -r requirements.txt` 预装依赖，再执行 `python server.py` 启动；如果有缺失依赖，启动过程也会自动检查并安装。
-2. 再选策略：在页面顶部勾选你要跑的策略（内置/自定义都行）
-3. 填参数：设置 `股票代码 + 时间区间 + ，模拟初始资金`
-4. 点回测：点击“单票回测”，先拿到第一份结果和日志
-5. 再扩展：需要组合、批量、BLK、TDX、策略进化时，去“操作工作台”
+相对上游项目，当前 fork 已做过这些维护性调整：
 
-建议节奏：先跑通单策略，再做组合/批量，最后做策略进化，这样最不容易踩坑。
+- 依赖管理改为 `uv`：以 [pyproject.toml](./pyproject.toml) 和 [uv.lock](./uv.lock) 为准
+- `requirements.txt` 保留为旧环境兼容入口
+- 文档按主题整理到 `docs/` 子目录
+- 增加数据源配置指南和项目分层说明
+- 启动脚本、部署脚本和桌面打包脚本优先适配 `uv`
 
-## 功能地图（按场景）
+如果你需要和上游保持一致，应定期对比上游仓库变更，再决定是否合并。
 
-| 你的目标     | 入口               | 说明                        |
-| -------- | ---------------- | ------------------------- |
-| 快速验证一个策略 | 底部 `单票回测`        | 最短路径，先拿到可解释的回测结果          |
-| 导入公式和板块池 | 操作工作台 -> 策略与板块工具 | TDX 公式转换、BLK 解析、批量看板      |
-| 调整系统参数   | `配置中心`           | 数据源、风控、执行、LLM 等统一维护       |
-| 运行策略进化   | 操作工作台 -> `策略进化`  | 进入 Evolution 看板执行生成/评估/迭代 |
-| 查看结果报告   | `回测报告`/一致性报告     | 分析绩效、对比基线与一致性             |
+## 快速开始
 
-## 核心特性
+### 1. 环境要求
 
-- 多策略并行：内置策略与用户策略统一纳管
-- 风控优先：门下省一票否决机制，覆盖止损、回撤、仓位约束
-- 回测闭环：从数据获取、信号执行到结果分析全链路打通
-- 数据源可切换：AkShare / Tushare / 默认 API / MySQL / PostgreSQL
-- 可视化运维：`server.py + dashboard.html` 提供操作面板
+- Python `>=3.10,<3.14`
+- 推荐安装 `uv`
+- macOS / Linux / Windows 均可本地运行
 
-### 回测模式
-
-![alt text](static/回测模式.png)
-
-### 策略进化看板
-
-![alt text](static/策略进化看板.png)
-
-## 架构设计(智能体智能）
-
-### 三省（决策主链路）
-
-- 太子院：数据前置校验与分发
-- 中书省：策略信号生成
-- 门下省：风控审核与拦截
-- 尚书省：执行调度与资金清算
-
-### 六部（职能部门）
-
-- 吏部：策略注册与生命周期管理
-- 户部：现金、成本、净值核算
-- 礼部：业绩报表与策略排行
-- 兵部：撮合执行与交易管理
-- 刑部：违规记录与风险事件
-- 工部：行情清洗与指标计算
-
-### 流程图
-
-```mermaid
-flowchart LR
-  A[行情数据源] --> B[太子院 CrownPrince]
-  B --> C[中书省 ZhongshuSheng]
-  C --> D[门下省 MenxiaSheng]
-  D -->|通过| E[尚书省 ShangshuSheng]
-  D -->|否决| F[刑部 XingBuJustice]
-  E --> G[兵部 BingBuWar]
-  E --> H[户部 HuBuRevenue]
-  E --> I[礼部 LiBuRites]
-```
-
-## 项目结构
-
-```text
-.
-├─src/
-│  ├─core/            # 三省核心流程
-│  ├─ministries/      # 六部职能实现
-│  ├─strategies/      # 内置与自定义策略管理
-│  ├─strategy_intent/ # 策略意图解析与生成
-│  └─utils/           # 配置、指标、数据源封装
-├─data/               # 历史数据、策略库、报告数据
-├─dashboard.html      # Web 面板
-├─server.py           # FastAPI 服务入口
-├─main.py             # 回测入口
-├─run_live.py         # 实盘监控入口
-└─run_backtest.py     # 命令行回测入口
-```
-
-**项目答疑咨询** 
-
-- 星球内容
-  - 金策智算安装、部署、配置一站式教程
-  - 三省六部架构设计思路与源码解读
-  - 日常技术答疑、BUG 排查
-- 定位：纯技术研究、工具学习、代码交流
-  - 不荐股、不指导买卖、不承诺收益、不涉及任何投资建议。
-  - 适合人群：量化爱好者、Python 开发者、想自建量化研究工具的学习者。
-- 第二波新用户优惠券，20张，领完即止,即将恢复原价
-
-<p align="center">
-  <img src="static/星球优惠券.png" width="45%" />
-  <img src="static/星球二维码.png" width="45%" />
-  <img src="static/视频更新.png" width="45%" />
-  <img src="static/数据服务.png" width="45%" />
-</p>
-
-## 快速开始（3分钟版）
-
-照着下面 4 步走，基本都能一次启动成功。
-
-### 1. 准备环境
-
-- 安装 Python 3.8+（建议用虚拟环境）
-
-### 2. 安装依赖
-
-在项目根目录执行：
+安装依赖：
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
-如果你用的是指定解释器，就改成：
+如果需要运行测试：
+
+```bash
+uv sync --group dev
+```
+
+没有 `uv` 时，可临时使用兼容方式：
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-### 3. 配置密钥（只放私有文件）
+### 2. 配置私密参数
 
-不要把密钥写进 `config.json`，统一放到 `config.private.json`（没有就新建一个）：
+不要把 token、密码、API key 写进 `config.json`。建议新建 `config.private.json`，或通过环境变量 `CONFIG_PRIVATE_PATH` 指向私密配置文件。
+
+示例：
 
 ```json
 {
   "data_provider": {
-    "tushare_token": "你的token",
-    "default_api_key": "你的api_key",
-    "llm_api_key": "你的llm_key",
-    "strategy_llm_api_key": "你的strategy_llm_key"
+    "tushare_token": "你的 tushare token",
+    "default_api_key": "你的自定义 API key",
+    "mysql_password": "你的 MySQL 密码",
+    "postgres_password": "你的 PostgreSQL 密码",
+    "llm_api_key": "你的 LLM API key"
   }
 }
 ```
 
-系统读取优先级：环境变量 > `config.private.json`（或 `private_config_path` 指定文件）> `config.json`。
+配置读取优先级：
 
-### 4. 启动项目
-
-```bash
-python server.py
+```text
+环境变量 > config.private.json / CONFIG_PRIVATE_PATH > config.json
 ```
 
-说明：启动时会自动检查 `requirements.txt` 中声明的依赖；如果当前环境缺失依赖，系统会自动尝试安装，首启耗时可能略长。
+### 3. 启动 Web 面板
 
-启动后打开控制台页面，选策略、填参数、点“单票回测”即可开始跑。
+```bash
+uv run python server.py
+```
 
-### 常用命令（可选）
+指定端口：
 
-- Windows 一键启动：`scripts/win一键启动.bat`
-- Linux/macOS 一键启动：`bash "scripts/linux&macOS系统启动.sh"`
-- 指定端口启动：`python server.py --prot 8001`
+```bash
+uv run python server.py --port 8001
+```
 
-## 授权说明
+常用脚本：
 
-本项目采用 **“个人非商业免费 + 商业需授权”** 模式。
+```bash
+bash "scripts/linux&macOS系统启动.sh"
+scripts/win一键启动.bat
+```
 
-**免费使用范围（非商业）**
+默认访问地址由 `config.json` 的 `system.server_port`、环境变量 `SERVER_PORT` 或命令行参数决定。
 
-- 个人学习
-- 学术研究
-- 本地自用（不对外提供商业服务）
+## 数据源
 
-**以下行为必须事先取得作者书面商业授权**
+当前 fork 默认主行情源是 `tdx`。也支持以下数据源：
 
-- 售卖本项目或衍生版本
-- 托管服务、SaaS、云端收费服务
-- 二次包装后销售、分销、代理
-- 任何直接或间接盈利部署
+- `tdx`：通达信本地数据或网络节点
+- `akshare`：AkShare 免费数据源
+- `tushare`：TuShare，需要 token
+- `mysql`：自建 MySQL 历史行情库
+- `postgresql`：自建 PostgreSQL 历史行情库
+- `duckdb`：本地 DuckDB 历史行情库
+- `default`：自备 HTTP API
 
-**商业授权联系**
+数据源详细配置见：
 
-- 联系方式：`zthx410@163.com`
-- 说明：商业授权范围、费用与支持条款以双方签署协议为准。
+- [数据源配置指南](./docs/data/数据源配置指南.md)
+- [历史数据源表结构](./docs/data/历史数据源表结构.sql)
+- [DATA_PROVIDER_README](./docs/data/DATA_PROVIDER_README.md)
 
-**免责声明**
+关于通达信数据需要特别注意：
 
-## 免责声明与用户使用协议
+- 本地模式依赖通达信客户端已经下载好的 `vipdoc` 数据
+- 网络节点模式可通过 `mootdx` / `pytdx` 访问行情节点
+- 本项目不会自动替你把通达信客户端的本地历史数据下载完整
 
-### 重要提示
+## 项目结构
 
-本软件及配套程序、数据、策略代码、回测引擎（统称“本工具”）为开源量化研究与历史数据回测工具，仅面向金融知识学习、策略逻辑验证、量化技术研究用途，不构成任何投资建议。
+```text
+.
+├── server.py                    # FastAPI Web 服务入口
+├── main.py                      # 本地回测入口
+├── run_backtest.py              # 命令行回测入口
+├── run_live.py                  # 实盘监控入口
+├── dashboard.html               # Web 面板页面
+├── config.json                  # 默认配置，避免放密钥
+├── pyproject.toml               # uv / Python 项目依赖定义
+├── uv.lock                      # uv 锁文件
+├── requirements.txt             # 旧环境兼容依赖文件
+├── src/
+│   ├── core/                    # 三省主流程：数据、策略、风控、执行
+│   ├── ministries/              # 六部职能模块：资金、绩效、撮合等
+│   ├── strategies/              # 内置策略和自定义策略管理
+│   ├── strategy_intent/         # 策略意图解析与生成
+│   ├── tdx/                     # 通达信公式、终端桥接相关能力
+│   └── utils/                   # 配置、数据源、指标、同步工具
+├── scripts/                     # 启动、部署、诊断、批量任务脚本
+├── data/                        # 本地数据、报告、策略结果
+├── docs/                        # 项目文档
+└── tests/                       # 单元测试
+```
 
-#### 一、工具性质声明
+更详细的分层说明见 [项目结构与分层说明](./docs/architecture/项目结构与分层说明.md)。
 
-1. 本工具仅提供历史行情数据展示、统计计算、策略回测、代码调试、技术分析研究功能。  
-2. 本工具不提供任何证券买卖点位推荐、不推荐具体股票/基金/期货等标的、不预测价格走势、不提供投资决策依据。  
-3. 本工具不属于荐股软件、不属于投资咨询软件、不属于智能交易决策软件。  
+## 文档入口
 
-#### 二、风险提示
+- [文档目录](./docs/README.md)
+- [API 文档](./docs/api/API_DOCS.md)
+- [数据源配置指南](./docs/data/数据源配置指南.md)
+- [批量回测操作指南](./docs/guides/批量回测操作指南.md)
+- [全局回测与实盘监控基线模板](./docs/guides/全局回测与实盘监控基线模板.md)
+- [事件驱动多 Agent 策略进化](./docs/evolution/新功能说明_事件驱动多Agent策略进化.md)
+- [通达信 BLK 组合回测](./docs/features/新功能说明_通达信_BLK_组合回测.md)
 
-1. 证券、期货、基金等投资行为存在高风险，历史回测结果不代表未来收益，不代表策略有效性。  
-2. 任何基于本工具生成的回测报告、指标结果、信号图表、策略参数，均不能作为实盘交易依据。  
-3. 用户因使用本工具进行实盘交易所产生的任何盈利、亏损、纠纷、损失、民事赔偿、行政处罚、刑事责任，均由用户自行承担全部责任。  
+## 常用命令
 
-#### 三、开发者责任免除（含民宿、茶馆、线下场所）
+安装或同步依赖：
 
-1. 本工具开发者（金策智算及相关主体）不具备证券投资咨询业务资质，不对外开展证券投资咨询活动，不提供任何形式的投资建议。  
-2. 开发者不对任何第三方使用本工具的行为承担法律责任，包括但不限于：  
-   - 个人用户、机构用户、散户社群  
-   - 茶馆、会所、股民交流场所、线下投研空间  
-   - 民宿、酒店、公寓、出租屋等住宿经营场所  
-   - 经销商、合作方、代理商、推广渠道  
-   - 任何商业或非商业场所、平台、社群  
-3. 上述第三方（含民宿、茶馆等）以“金策智算”名义开展的收费荐股、投资指导、收益承诺、会员费、分成、代客理财、直播分析、线下教学等经营活动，均属其独立行为；开发者不知情、不授权、不参与、不控制、不获益、不承担任何连带责任（包括民事赔偿、行政处罚、刑事责任）。  
-4. 本工具为开源发布，开发者不对软件稳定性、连续性、安全性做出任何承诺，因软件使用导致的数据丢失、设备故障、系统异常、经济损失等问题，开发者不承担任何法律责任。  
+```bash
+uv sync
+```
 
-#### 四、用户义务与承诺
+运行 Web 面板：
 
-用户使用本工具即视为已充分理解并承诺：
+```bash
+uv run python server.py
+```
 
-1. 已明确知晓本工具仅为量化学习与研究用途，不用于任何非法证券活动、违规荐股、收费投资指导、代客理财。  
-2. 具备相应金融投资风险识别能力与承受能力，自愿承担所有使用风险与法律责任。  
-3. 不利用本工具从事违反《证券法》《期货交易管理条例》《证券投资咨询业务管理暂行规定》等法律法规的活动。  
-4. 知晓并同意：开发者不对任何用户或第三方（含民宿、茶馆、线下场所等）的盈亏、纠纷、民事索赔、行政处罚、刑事责任承担任何责任。  
+运行命令行回测：
 
-#### 五、最终解释与法律适用
+```bash
+uv run python run_backtest.py --stock 600000.SH --start 2024-01-01 --end 2024-12-31
+```
 
-1. 本声明为开源软件使用条件，构成用户使用本工具的前提。  
-2. 因本工具产生的争议，适用中华人民共和国法律管辖。  
+运行单元测试：
 
-> 详细条款请见仓库根目录 `LICENSE` 文件；如与商业协议冲突，以商业协议为准。
+```bash
+uv run pytest tests/unit -q
+```
 
-## 贡献指南
+桌面端打包：
 
-欢迎提交 Issue 和 PR。建议流程：
+```bash
+uv sync --extra desktop-build
+bash scripts/build_desktop.sh
+```
 
-1. Fork 项目并创建功能分支
-2. 保持提交粒度清晰，说明改动动机
-3. 提交前确保核心脚本可运行
-4. 通过 PR 描述测试方法与影响范围
+## 维护说明
 
-## Star History
+### 依赖管理
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ScottZt/jin-ce-zhi-suan&type=Date)](https://star-history.com/#ScottZt/jin-ce-zhi-suan&Date)
+当前以 `pyproject.toml` 和 `uv.lock` 为准：
+
+- 新依赖应先加入 `pyproject.toml`
+- 修改依赖后执行 `uv lock`
+- 本地环境同步执行 `uv sync`
+- `requirements.txt` 只作为兼容旧脚本和无 uv 环境的兜底
+
+### 上游同步
+
+如果本仓库需要跟进原始项目变更，可以添加上游 remote：
+
+```bash
+git remote add upstream https://github.com/ScottZt/jin-ce-zhi-suan.git
+git fetch upstream
+```
+
+合并前建议先查看差异，避免覆盖本 fork 已整理的配置、文档和依赖管理改动。
+
+## 测试状态
+
+最近一次依赖迁移后的本地验证：
+
+- `uv lock` 通过
+- `uv sync` 通过
+- `uv lock --check` 通过
+- `uv run python -m py_compile ...` 通过
+- `uv run python -c "import server"` 通过
+- `uv run pytest tests/unit -q` 可执行；当前存在 1 个与 TDX 连通性预期相关的业务断言失败
+
+失败项不是依赖迁移引入的锁文件或导入问题，而是测试期望“无本地 TDX 目录时报错”，当前实现会走网络节点并返回成功。
+
+## 授权与免责声明
+
+本项目沿用原项目的授权和免责声明。简要说明：
+
+- 仅用于个人学习、学术研究、本地非商业用途
+- 未经书面授权，不得用于商业销售、托管服务、SaaS、二次包装销售或盈利部署
+- 本项目不提供证券投资咨询服务
+- 回测结果、策略信号、指标和报告不构成投资建议
+- 使用者自行承担数据、交易、合规和法律风险
+
+完整条款请阅读 [LICENSE](./LICENSE)。涉及原项目版权和授权解释时，请以上游项目与许可证原文为准。

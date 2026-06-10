@@ -58,7 +58,7 @@ if ([string]::IsNullOrWhiteSpace($bootPython)) {
     }
 }
 if ([string]::IsNullOrWhiteSpace($bootPython)) {
-    Write-Host "[start] ERROR: Python 3.9+ was not found in PATH." -ForegroundColor Red
+    Write-Host "[start] ERROR: Python 3.10+ was not found in PATH." -ForegroundColor Red
     exit 1
 }
 Write-Step "Bootstrap interpreter: $bootPython"
@@ -75,8 +75,8 @@ if (Test-Path $venvPython) {
     Write-Step "Using system python: $pythonCmd"
 }
 
-# 启动入口已内置依赖检查，这里提前提示便于用户理解首启耗时。
-Write-Step "Dependency bootstrap is enabled. Missing packages will be installed automatically."
+# 启动入口已内置依赖检查；推荐先用 uv sync 准备 pyproject.toml / uv.lock 环境。
+Write-Step "Dependency mode: pyproject.toml + uv.lock. Run 'uv sync' before startup for best results."
 
 # ---------------------------------------------------------------------------
 # Port detection and auto-increment

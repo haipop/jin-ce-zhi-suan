@@ -700,7 +700,7 @@ from pathlib import Path
 
 
 def test_api_docs_include_stock_list_refresh_endpoint():
-    text = Path("docs/API_DOCS.md").read_text(encoding="utf-8")
+    text = Path("docs/api/API_DOCS.md").read_text(encoding="utf-8")
 
     assert "/api/history_sync/stock_list/refresh" in text
     assert "AkShare" in text
@@ -712,7 +712,7 @@ def test_api_docs_include_stock_list_refresh_endpoint():
 Run:
 
 ```bash
-python -c "from pathlib import Path; text = Path('docs/API_DOCS.md').read_text(encoding='utf-8'); assert '/api/history_sync/stock_list/refresh' in text"
+python -c "from pathlib import Path; text = Path('docs/api/API_DOCS.md').read_text(encoding='utf-8'); assert '/api/history_sync/stock_list/refresh' in text"
 ```
 
 Expected:
@@ -750,7 +750,7 @@ python -m pytest tests/unit/test_stock_list_refresh.py tests/test_history_sync_c
 And perform static checks:
 
 ```bash
-python -c "from pathlib import Path; html = Path('dashboard.html').read_text(encoding='utf-8'); docs = Path('docs/API_DOCS.md').read_text(encoding='utf-8'); assert 'history-sync-refresh-stock-list-btn' in html; assert '/api/history_sync/stock_list/refresh' in docs; print('checks passed')"
+python -c "from pathlib import Path; html = Path('dashboard.html').read_text(encoding='utf-8'); docs = Path('docs/api/API_DOCS.md').read_text(encoding='utf-8'); assert 'history-sync-refresh-stock-list-btn' in html; assert '/api/history_sync/stock_list/refresh' in docs; print('checks passed')"
 ```
 
 - [ ] **Step 4: Run tests to verify they pass**
@@ -768,6 +768,6 @@ Expected:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add docs/API_DOCS.md tests/test_history_sync_config.py tests/unit/test_server_consistency_routes_regression.py
+git add docs/api/API_DOCS.md tests/test_history_sync_config.py tests/unit/test_server_consistency_routes_regression.py
 git commit -m "docs: add stock list refresh api and config center action coverage"
 ```

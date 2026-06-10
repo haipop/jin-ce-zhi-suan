@@ -1,0 +1,46 @@
+[project]
+name = "jin-ce-zhi-suan"
+version = "0.1.0"
+description = "A-share quant research, backtesting, and dashboard system."
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "akshare",
+    "duckdb>=1.5.2,<1.6",
+    "fastapi",
+    "matplotlib",
+    "mplfinance",
+    "mootdx",
+    "numpy",
+    "pandas",
+    "Pillow",
+    "psycopg2-binary",
+    "pydantic",
+    "pymysql",
+    "pystray",
+    "pytz",
+    "pytdx",
+    "requests",
+    "starlette",
+    "tqdm",
+    "tushare",
+    "uvicorn[standard]",
+    "zhipuai",
+]
+
+[project.optional-dependencies]
+desktop-build = [
+    "pyinstaller",
+    "pyobjc; sys_platform == 'darwin'",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
