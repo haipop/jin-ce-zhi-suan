@@ -17,11 +17,14 @@ if "%ERRORLEVEL%"=="0" (
     uv sync --extra desktop-build
     set "PYTHON=%PROJECT_DIR%\.venv\Scripts\python.exe"
 ) else (
-    "%PYTHON%" -m pip install pyinstaller -q
+    "%PYTHON%" -m pip install pyinstaller pywebview -q
 )
 
 echo [build] Starting build (onedir mode, first run ~5-10 min)...
 cd /d "%PROJECT_DIR%"
+
+echo [build] Generating desktop icons...
+"%PYTHON%" scripts\generate_desktop_icons.py
 
 if exist "dist" (
     echo [build] Cleaning old artifacts...

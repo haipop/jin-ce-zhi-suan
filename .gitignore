@@ -29,7 +29,6 @@ tests/e2e/playwright-report/
 tests/e2e/test-results/
 /data/
 CLAUDE.MD
-tests/
 run_stress_tests.py
 .claude/
 .github/

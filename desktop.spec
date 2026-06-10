@@ -23,6 +23,45 @@ project_root = os.path.dirname(os.path.abspath(SPEC))
 is_macos = sys.platform == "darwin"
 is_windows = sys.platform == "win32"
 
+def _generate_desktop_icons():
+    """Create .icns/.ico build icons from logo.png when possible."""
+    logo_path = os.path.join(project_root, "logo.png")
+    out_dir = os.path.join(project_root, "build", "desktop-icons")
+    ico_path = os.path.join(out_dir, "logo.ico")
+    icns_path = os.path.join(out_dir, "logo.icns")
+    if os.path.exists(ico_path) and os.path.exists(icns_path):
+        return ico_path, icns_path
+    if not os.path.exists(logo_path):
+        return None, None
+    try:
+        from PIL import Image
+
+        os.makedirs(out_dir, exist_ok=True)
+        image = Image.open(logo_path).convert("RGBA")
+        image.save(
+            ico_path,
+            sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
+        )
+        image.save(
+            icns_path,
+            sizes=[(16, 16), (32, 32), (64, 64), (128, 128), (256, 256), (512, 512)],
+        )
+        return ico_path, icns_path
+    except Exception as icon_err:
+        print(f"[desktop.spec] Warning: failed to generate desktop icons: {icon_err}")
+        return None, None
+
+def _app_icon_path():
+    ico_path, icns_path = _generate_desktop_icons()
+    if is_macos and icns_path and os.path.exists(icns_path):
+        return icns_path
+    if is_windows and ico_path and os.path.exists(ico_path):
+        return ico_path
+    logo_path = os.path.join(project_root, "logo.png")
+    return logo_path if os.path.exists(logo_path) else None
+
+app_icon_path = _app_icon_path()
+
 # ---------------------------------------------------------------
 # 收集 site-packages（支持 Windows Store Python 等非常规路径）
 # ---------------------------------------------------------------
@@ -97,6 +136,7 @@ excludes = [
 # ---------------------------------------------------------------
 hiddenimports = [
     "runpy", "webbrowser",
+    "webview",
     "pystray", "PIL",
     # macOS 菜单栏托盘依赖（pystray 的 darwin backend 依赖 pyobjc）
     "objc", "Foundation", "AppKit", "PyObjCTools",
@@ -194,7 +234,7 @@ exe = EXE(
     strip=False,
     upx=False,
     console=console_option,
-    icon=os.path.join(project_root, "logo.png"),
+    icon=app_icon_path,
 )
 
 if is_macos:
@@ -204,15 +244,15 @@ if is_macos:
         a.zipfiles,
         a.datas,
         name="金策智算.app",
-        icon=os.path.join(project_root, "logo.png"),
+        icon=app_icon_path,
         bundle_identifier="com.jincenzhisuan.app",
         version="1.0.0",
         info_plist={
             "NSPrincipalClass": "NSApplication",
             "NSHighResolutionCapable": "True",
             "LSMinimumSystemVersion": "10.15",
-            # 菜单栏托盘应用：隐藏 Dock 图标（仅菜单栏显示）
-            "LSUIElement": "1",
+            # 客户端窗口模式需要 Dock 图标；浏览器 fallback 也可接受显示 Dock。
+            "LSUIElement": "0",
         },
     )
 else:

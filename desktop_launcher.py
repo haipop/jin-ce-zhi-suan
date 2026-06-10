@@ -45,6 +45,11 @@ def _bundle_path(relative):
         return os.path.join(sys._MEIPASS, relative)
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), relative)
 
+def _desktop_icon_path():
+    """返回客户端/托盘可用的项目图标路径；不存在时交给宿主使用默认图标。"""
+    icon_path = _bundle_path("logo.png")
+    return icon_path if os.path.exists(icon_path) else None
+
 def _app_bundle_root():
     """返回 .app 包的根目录（可写），仅 macOS 有意义。"""
     if sys.platform == "darwin":
@@ -369,6 +374,35 @@ def read_desktop_startup_timeout():
         return max(30, _safe_int(v, default_timeout))
     except Exception:
         return default_timeout
+
+def read_desktop_mode():
+    """读取桌面端展示模式：client 为嵌入窗口，browser 为旧版浏览器模式。"""
+    default_mode = "client"
+    env_value = str(os.environ.get("JZ_DESKTOP_MODE", "") or "").strip().lower()
+    if env_value in {"client", "browser"}:
+        return env_value
+
+    def _read_mode_from_config(cfg_path):
+        try:
+            with open(cfg_path, "r", encoding="utf-8") as f:
+                payload = json.load(f)
+            mode = str(payload.get("desktop", {}).get("mode", "") or "").strip().lower()
+            if mode in {"client", "browser"}:
+                return mode
+        except Exception:
+            return ""
+        return ""
+
+    user_dir = os.environ.get("DESKTOP_CONFIG_DIR", "")
+    if user_dir:
+        user_mode = _read_mode_from_config(os.path.join(user_dir, "config.json"))
+        if user_mode:
+            return user_mode
+
+    bundle_mode = _read_mode_from_config(_bundle_path("config.json"))
+    if bundle_mode:
+        return bundle_mode
+    return default_mode
 
 def find_free_port(start_port=8000):
     port = start_port
@@ -776,7 +810,7 @@ def _server_thread_target(port):
         uvicorn_server[0] = None
         server_module_ref[0] = None
 
-def _start_server_thread(port):
+def _start_server_thread(port, open_browser_on_ready=True):
     if server_running.is_set():
         print("[desktop] Server already running")
         return
@@ -817,11 +851,14 @@ def _start_server_thread(port):
         except Exception:
             pass
         print(f"[desktop] Server ready: {url}")
-        _mac_notify("金策智算", "启动成功，正在打开浏览器…")
-        if not _open_url(url):
-            print("[desktop] Failed to open browser automatically.")
-            if sys.platform == "darwin" and getattr(sys, "frozen", False):
-                _show_crash_dialog(f"服务已启动，但无法自动打开浏览器。\n请手动访问：{url}\n日志：{_desktop_log_path[0] or '未知'}")
+        if open_browser_on_ready:
+            _mac_notify("金策智算", "启动成功，正在打开浏览器…")
+            if not _open_url(url):
+                print("[desktop] Failed to open browser automatically.")
+                if sys.platform == "darwin" and getattr(sys, "frozen", False):
+                    _show_crash_dialog(f"服务已启动，但无法自动打开浏览器。\n请手动访问：{url}\n日志：{_desktop_log_path[0] or '未知'}")
+        else:
+            _mac_notify("金策智算", "启动成功，正在打开客户端…")
 
     def _wait_server_ready_in_background():
         """超时后继续后台等待，避免把“慢启动”误报成“启动失败”。
@@ -890,11 +927,42 @@ def _start_server_thread(port):
             msg += "你也可以从终端运行 app 内可执行文件以查看输出。"
             _show_crash_dialog(msg[:900])
 
+    return server_running.is_set()
+
 def _stop_server_thread():
     svr = uvicorn_server[0]
     if svr is not None:
         print("[desktop] Stopping server...")
         svr.should_exit = True
+
+def _run_client_window(url):
+    """在主线程中打开 pywebview 客户端窗口；失败时返回 False 供浏览器模式兜底。"""
+    try:
+        import webview
+    except Exception as import_err:
+        print(f"[desktop] pywebview unavailable, fallback to browser mode: {import_err}")
+        return False
+
+    try:
+        icon_path = _desktop_icon_path()
+        print(f"[desktop] Opening embedded client window: {url}")
+        if icon_path:
+            print(f"[desktop] Using client icon: {icon_path}")
+        webview.create_window(
+            "金策智算",
+            url,
+            width=1440,
+            height=900,
+            min_size=(1180, 720),
+            background_color="#f6fbf8",
+        )
+        webview.start(icon=icon_path)
+        print("[desktop] Embedded client window closed")
+        return True
+    except BaseException as client_err:
+        print(f"[desktop] Embedded client failed, fallback to browser mode: {client_err}")
+        traceback.print_exc()
+        return False
 
 # ---------------------------------------------------------------------------
 # 首次运行初始化（仅打包模式）
@@ -1003,6 +1071,9 @@ def _run_main():
     print(f"[desktop] CWD: {os.getcwd()}")
     print(f"[desktop] Mode: {'frozen' if getattr(sys, 'frozen', False) else 'dev'}")
 
+    desktop_mode = read_desktop_mode()
+    print(f"[desktop] Display mode: {desktop_mode}")
+
     config_port = read_config_port()
     actual_port = find_free_port(config_port)
     if actual_port != config_port:
@@ -1013,10 +1084,23 @@ def _run_main():
 
     _init_config_on_first_run()
 
-    # 启动服务（启动成功后会自动打开浏览器）
-    _start_server_thread(actual_port)
-
     url = f"http://127.0.0.1:{actual_port}"
+
+    if desktop_mode == "client":
+        # 客户端模式：服务在后台线程中运行，主线程交给 pywebview 原生窗口。
+        _start_server_thread(actual_port, open_browser_on_ready=False)
+        if _run_client_window(url):
+            _stop_server_and_wait(timeout=3.0)
+            raise SystemExit(0)
+
+        print("[desktop] Falling back to browser display mode")
+        _mac_notify("金策智算", "客户端窗口不可用，正在打开浏览器…")
+        if not _open_url(url):
+            print("[desktop] Failed to open browser during client fallback.")
+    else:
+        # 浏览器模式：保持旧行为，服务就绪后打开系统浏览器，并提供托盘菜单。
+        _start_server_thread(actual_port, open_browser_on_ready=True)
+
     tray = _create_tray_icon(actual_port)
     if tray is None:
         if sys.platform == "darwin" and getattr(sys, "frozen", False):

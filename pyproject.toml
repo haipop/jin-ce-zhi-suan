@@ -31,6 +31,7 @@ dependencies = [
 [project.optional-dependencies]
 desktop-build = [
     "pyinstaller",
+    "pywebview",
     "pyobjc; sys_platform == 'darwin'",
 ]
 

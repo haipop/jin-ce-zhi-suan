@@ -150,6 +150,7 @@
             box-shadow: 0 16px 40px rgba(2, 6, 23, 0.55);
             width: min(920px, 92vw);
             max-height: 86vh;
+            overflow-x: hidden;
             overflow-y: auto;
         }
 
@@ -378,9 +379,438 @@
             word-break: break-word;
             white-space: pre-wrap;
         }
+
+        /* Fresh professional theme: scoped to the body so legacy dark classes remain as fallback. */
+        html:has(body.theme-fresh) {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        body.theme-fresh {
+            --jz-bg: #f5f9ff;
+            --jz-surface: #ffffff;
+            --jz-surface-soft: #eef6ff;
+            --jz-surface-muted: #e2ecfb;
+            --jz-border: #c8d9f2;
+            --jz-border-strong: #9eb8df;
+            --jz-ink: #132033;
+            --jz-ink-soft: #30445f;
+            --jz-muted: #64748b;
+            --jz-muted-light: #94a3b8;
+            --jz-primary: #2563eb;
+            --jz-primary-hover: #1d4ed8;
+            --jz-blue: #2563eb;
+            --jz-blue-soft: #dbeafe;
+            --jz-green: #059669;
+            --jz-green-soft: #dff7ec;
+            --jz-red: #dc2626;
+            --jz-red-soft: #fee2e2;
+            --jz-yellow: #b7791f;
+            --jz-yellow-soft: #fef3c7;
+            --jz-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+            background: var(--jz-bg);
+            color: var(--jz-ink);
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        body.theme-fresh,
+        body.theme-fresh .bg-trading-bg,
+        body.theme-fresh [class*="bg-slate-950"],
+        body.theme-fresh [class*="bg-slate-900"],
+        body.theme-fresh [class*="bg-slate-800"] {
+            background-color: var(--jz-bg) !important;
+        }
+
+        body.theme-fresh header,
+        body.theme-fresh .glass-panel,
+        body.theme-fresh #disclaimer-card,
+        body.theme-fresh #backtest-results,
+        body.theme-fresh [class*="bg-slate-950/"],
+        body.theme-fresh [class*="bg-slate-900/"],
+        body.theme-fresh [class*="bg-slate-800/"] {
+            background: rgba(255, 255, 255, 0.92) !important;
+            border-color: var(--jz-border) !important;
+            box-shadow: var(--jz-shadow) !important;
+            color: var(--jz-ink) !important;
+            backdrop-filter: blur(8px);
+        }
+
+        body.theme-fresh #onboarding-guide-entry-btn {
+            min-width: 8.5rem;
+        }
+
+        body.theme-fresh #panel-bing {
+            overflow-y: auto;
+        }
+
+        body.theme-fresh header {
+            background: rgba(255, 255, 255, 0.96) !important;
+            box-shadow: 0 1px 0 rgba(158, 184, 223, 0.55) !important;
+        }
+
+        body.theme-fresh main.dashboard-shell {
+            background: linear-gradient(180deg, #f5f9ff 0%, #eaf3ff 100%);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+            grid-template-areas:
+                "decision logs"
+                "execution logs";
+            gap: 1rem;
+            align-items: start;
+            overflow: visible;
+        }
+
+        body.theme-fresh .dashboard-column {
+            min-width: 0;
+            height: auto;
+        }
+
+        body.theme-fresh .decision-section {
+            grid-area: decision;
+        }
+
+        body.theme-fresh .execution-section {
+            grid-area: execution;
+        }
+
+        body.theme-fresh .logs-section {
+            grid-area: logs;
+            position: sticky;
+            top: 1rem;
+            max-height: calc(100vh - 2rem);
+            overflow: hidden;
+        }
+
+        body.theme-fresh .decision-stack {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            align-items: stretch;
+        }
+
+        body.theme-fresh .decision-stack > :not(.glass-panel) {
+            grid-column: 1 / -1;
+        }
+
+        body.theme-fresh .decision-stack > .glass-panel,
+        body.theme-fresh #panel-li,
+        body.theme-fresh #panel-hu,
+        body.theme-fresh #panel-li-rites,
+        body.theme-fresh #panel-bing,
+        body.theme-fresh #panel-xing,
+        body.theme-fresh #panel-gong {
+            flex: 0 0 auto !important;
+            min-height: 230px;
+        }
+
+        body.theme-fresh .decision-stack > .glass-panel {
+            min-height: 240px;
+        }
+
+        body.theme-fresh #log-zhongshu,
+        body.theme-fresh #log-menxia,
+        body.theme-fresh #log-shangshu {
+            min-height: 112px;
+        }
+
+        body.theme-fresh .dashboard-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1rem;
+            align-items: stretch;
+        }
+
+        body.theme-fresh .dashboard-card-grid .glass-panel {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        body.theme-fresh #right-panel-stack {
+            display: flex;
+            flex-direction: column;
+            min-height: auto;
+        }
+
+        body.theme-fresh #strategy-quick-panel,
+        body.theme-fresh #live-stream-panel {
+            min-height: 260px;
+        }
+
+        body.theme-fresh #live-console-panel {
+            min-height: 240px;
+            max-height: none;
+        }
+
+        body.theme-fresh table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        body.theme-fresh th,
+        body.theme-fresh td {
+            line-height: 1.45;
+        }
+
+        @media (max-width: 1350px) {
+            body.theme-fresh main.dashboard-shell {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-areas:
+                    "decision"
+                    "execution"
+                    "logs";
+            }
+
+            body.theme-fresh .logs-section {
+                position: static;
+                max-height: none;
+                overflow: visible;
+            }
+
+            body.theme-fresh .dashboard-card-grid {
+                grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            body.theme-fresh main.dashboard-shell {
+                padding: 0.75rem;
+            }
+
+            body.theme-fresh .dashboard-card-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            body.theme-fresh .decision-stack {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            body.theme-fresh .decision-stack > .glass-panel,
+            body.theme-fresh #panel-li,
+            body.theme-fresh #panel-hu,
+            body.theme-fresh #panel-li-rites,
+            body.theme-fresh #panel-bing,
+            body.theme-fresh #panel-xing,
+            body.theme-fresh #panel-gong {
+                min-height: 190px;
+            }
+        }
+
+        body.theme-fresh #workflow-mainline-bar {
+            background: #eaf3ff !important;
+            border-color: var(--jz-border) !important;
+        }
+
+        body.theme-fresh #strategy-overlay,
+        body.theme-fresh #backtest-overlay,
+        body.theme-fresh #strategy-doc-overlay,
+        body.theme-fresh #disclaimer-overlay {
+            background: rgba(239, 246, 255, 0.86) !important;
+        }
+
+        body.theme-fresh #consistency-report-modal,
+        body.theme-fresh .fixed.inset-0.bg-black\/70,
+        body.theme-fresh .fixed.inset-0.bg-black\/75,
+        body.theme-fresh .fixed.inset-0.bg-black\/85 {
+            background: rgba(19, 32, 51, 0.28) !important;
+        }
+
+        body.theme-fresh [class*="border-slate-"],
+        body.theme-fresh .border {
+            border-color: var(--jz-border) !important;
+        }
+
+        body.theme-fresh .border-l-purple-500 { border-left-color: #8b5cf6 !important; }
+        body.theme-fresh .border-l-yellow-500 { border-left-color: #d97706 !important; }
+        body.theme-fresh .border-l-blue-500 { border-left-color: var(--jz-blue) !important; }
+        body.theme-fresh .border-l-green-500,
+        body.theme-fresh .border-l-emerald-500 { border-left-color: var(--jz-green) !important; }
+        body.theme-fresh .border-l-red-500,
+        body.theme-fresh .border-l-rose-500 { border-left-color: var(--jz-red) !important; }
+
+        body.theme-fresh .text-white,
+        body.theme-fresh [class*="text-slate-100"],
+        body.theme-fresh [class*="text-slate-200"],
+        body.theme-fresh [class*="text-slate-300"] {
+            color: var(--jz-ink) !important;
+        }
+
+        body.theme-fresh [class*="text-slate-400"],
+        body.theme-fresh [class*="text-slate-500"],
+        body.theme-fresh .text-trading-dim {
+            color: var(--jz-muted) !important;
+        }
+
+        body.theme-fresh .text-trading-blue,
+        body.theme-fresh .text-blue-300,
+        body.theme-fresh .text-cyan-300,
+        body.theme-fresh .text-sky-300 {
+            color: var(--jz-primary) !important;
+        }
+
+        body.theme-fresh .text-trading-green,
+        body.theme-fresh .text-emerald-300,
+        body.theme-fresh .text-green-300 {
+            color: var(--jz-green) !important;
+        }
+
+        body.theme-fresh .text-trading-red,
+        body.theme-fresh .text-red-500,
+        body.theme-fresh .text-rose-300 {
+            color: var(--jz-red) !important;
+        }
+
+        body.theme-fresh .text-trading-yellow,
+        body.theme-fresh .text-amber-300,
+        body.theme-fresh .text-yellow-300 {
+            color: var(--jz-yellow) !important;
+        }
+
+        body.theme-fresh button[class*="bg-slate-"],
+        body.theme-fresh a[class*="bg-slate-"],
+        body.theme-fresh button.bg-trading-blue,
+        body.theme-fresh a.bg-trading-blue {
+            background: var(--jz-surface-soft) !important;
+            border-color: var(--jz-border-strong) !important;
+            color: var(--jz-ink) !important;
+        }
+
+        body.theme-fresh button[class*="bg-blue-"],
+        body.theme-fresh a[class*="bg-blue-"],
+        body.theme-fresh button[class*="bg-cyan-"],
+        body.theme-fresh a[class*="bg-cyan-"],
+        body.theme-fresh button[class*="bg-indigo-"],
+        body.theme-fresh a[class*="bg-indigo-"],
+        body.theme-fresh button[class*="bg-violet-"],
+        body.theme-fresh a[class*="bg-violet-"],
+        body.theme-fresh button[class*="bg-purple-"],
+        body.theme-fresh a[class*="bg-purple-"] {
+            background: var(--jz-primary) !important;
+            border-color: var(--jz-primary-hover) !important;
+            color: #ffffff !important;
+        }
+
+        body.theme-fresh button[class*="bg-emerald-"],
+        body.theme-fresh a[class*="bg-emerald-"],
+        body.theme-fresh button[class*="bg-green-"],
+        body.theme-fresh a[class*="bg-green-"] {
+            background: var(--jz-green) !important;
+            border-color: #047857 !important;
+            color: #ffffff !important;
+        }
+
+        body.theme-fresh button[class*="bg-rose-"],
+        body.theme-fresh a[class*="bg-rose-"],
+        body.theme-fresh button[class*="bg-red-"],
+        body.theme-fresh a[class*="bg-red-"] {
+            background: var(--jz-red) !important;
+            border-color: #b91c1c !important;
+            color: #ffffff !important;
+        }
+
+        body.theme-fresh button[class*="bg-amber-"],
+        body.theme-fresh a[class*="bg-amber-"] {
+            background: var(--jz-yellow) !important;
+            border-color: #92400e !important;
+            color: #ffffff !important;
+        }
+
+        body.theme-fresh input,
+        body.theme-fresh select,
+        body.theme-fresh textarea {
+            background: #ffffff !important;
+            border-color: var(--jz-border-strong) !important;
+            color: var(--jz-ink) !important;
+            box-shadow: inset 0 1px 2px rgba(20, 33, 27, 0.04);
+        }
+
+        body.theme-fresh input::placeholder,
+        body.theme-fresh textarea::placeholder {
+            color: var(--jz-muted-light) !important;
+        }
+
+        body.theme-fresh table thead,
+        body.theme-fresh thead[class*="bg-slate-"],
+        body.theme-fresh tbody tr:hover {
+            background: var(--jz-surface-soft) !important;
+            color: var(--jz-ink-soft) !important;
+        }
+
+        body.theme-fresh tbody,
+        body.theme-fresh pre,
+        body.theme-fresh .font-mono {
+            color: var(--jz-ink-soft);
+        }
+
+        body.theme-fresh [class*="divide-slate-"] > :not([hidden]) ~ :not([hidden]) {
+            border-color: var(--jz-border) !important;
+        }
+
+        body.theme-fresh .cyber-loader {
+            border-color: var(--jz-surface-muted);
+            border-top-color: var(--jz-primary);
+        }
+
+        body.theme-fresh .bg-trading-blue,
+        body.theme-fresh .bg-blue-500,
+        body.theme-fresh .from-blue-500 {
+            background-color: var(--jz-primary) !important;
+        }
+
+        body.theme-fresh .bg-trading-green,
+        body.theme-fresh .bg-green-500,
+        body.theme-fresh .to-green-500 {
+            background-color: var(--jz-green) !important;
+        }
+
+        body.theme-fresh .bg-trading-red,
+        body.theme-fresh .bg-red-500,
+        body.theme-fresh .bg-rose-500 {
+            background-color: var(--jz-red) !important;
+        }
+
+        body.theme-fresh [class*="bg-emerald-900"],
+        body.theme-fresh [class*="bg-green-900"] {
+            background: var(--jz-green-soft) !important;
+            border-color: #a7f3d0 !important;
+            color: #047857 !important;
+        }
+
+        body.theme-fresh [class*="bg-amber-900"],
+        body.theme-fresh [class*="bg-yellow-900"] {
+            background: var(--jz-yellow-soft) !important;
+            border-color: #fde68a !important;
+            color: #92400e !important;
+        }
+
+        body.theme-fresh [class*="bg-blue-900"],
+        body.theme-fresh [class*="bg-cyan-900"],
+        body.theme-fresh [class*="bg-sky-900"] {
+            background: var(--jz-blue-soft) !important;
+            border-color: #bfdbfe !important;
+            color: #1d4ed8 !important;
+        }
+
+        body.theme-fresh [class*="bg-rose-900"],
+        body.theme-fresh [class*="bg-red-900"] {
+            background: var(--jz-red-soft) !important;
+            border-color: #fecaca !important;
+            color: #b91c1c !important;
+        }
+
+        body.theme-fresh ::-webkit-scrollbar-track {
+            background: #e2ecfb;
+        }
+
+        body.theme-fresh ::-webkit-scrollbar-thumb {
+            background: #9eb8df;
+        }
+
+        body.theme-fresh ::-webkit-scrollbar-thumb:hover {
+            background: #7398cf;
+        }
     </style>
 </head>
-<body class="h-screen flex flex-col text-sm antialiased selection:bg-trading-blue selection:text-white">
+<body class="theme-fresh min-h-screen flex flex-col text-sm antialiased selection:bg-trading-blue selection:text-white">
 
     <div id="disclaimer-overlay" class="active">
         <div id="disclaimer-card" class="rounded-xl p-6 md:p-8">
@@ -808,10 +1238,10 @@
     </div>
 
     <!-- Main Layout -->
-    <main class="flex-1 flex overflow-hidden p-4 gap-4">
+    <main class="dashboard-shell flex-1 p-4">
 
         <!-- LEFT: Three Departments (Decision Hub) -->
-        <section class="min-w-0 flex-[1] flex flex-col gap-4">
+        <section class="dashboard-column decision-section decision-stack min-w-0 flex flex-col gap-4">
             <!-- Header -->
             <div class="flex items-center gap-2 text-trading-dim text-xs font-bold uppercase tracking-widest border-b border-slate-700 pb-2">
                 <i class="fa-solid fa-landmark"></i> 智能决策中枢 (Central Hub)
@@ -874,7 +1304,7 @@
         </section>
 
         <!-- CENTER: Six Ministries (Execution Modules) -->
-        <section class="min-w-0 flex-[2] flex flex-col gap-4">
+        <section class="dashboard-column execution-section min-w-0 flex flex-col gap-4">
             <div class="flex items-center gap-2 text-trading-dim text-xs font-bold uppercase tracking-widest border-b border-slate-700 pb-2">
                 <i class="fa-solid fa-chess-board"></i> 核心执行模块 (Core Execution)
             </div>
@@ -897,7 +1327,7 @@
                 </div>
             </div>
             
-            <div class="grid grid-cols-2 grid-rows-3 gap-4 flex-1">
+            <div class="dashboard-card-grid">
                 <!-- Li Bu (Personnel) -->
                 <div id="panel-li" class="glass-panel p-4 rounded-lg flex-1 flex flex-col justify-between hover:bg-slate-800/50 transition-colors border-l-2 border-l-purple-500">
                     <div class="flex justify-between items-center">
@@ -1025,7 +1455,7 @@
         </section>
 
         <!-- RIGHT: Imperial Archives (Log) -->
-        <section class="min-w-0 flex-[1] flex flex-col gap-4">
+        <section class="dashboard-column logs-section min-w-0 flex flex-col gap-4">
             <div class="flex items-center gap-2 text-trading-dim text-xs font-bold uppercase tracking-widest border-b border-slate-700 pb-2">
                 <i class="fa-solid fa-clock-rotate-left"></i> 系统运行日志 (System Logs)
             </div>

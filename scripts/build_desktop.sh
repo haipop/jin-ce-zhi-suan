@@ -29,8 +29,8 @@ if command -v uv >/dev/null 2>&1 && [[ -f "$PROJECT_ROOT/pyproject.toml" ]]; the
   uv sync --extra desktop-build
   PYTHON="$PROJECT_ROOT/.venv/bin/python"
 else
-  step "安装 PyInstaller..."
-  "$PYTHON" -m pip install pyinstaller -q
+  step "安装 PyInstaller / pywebview..."
+  "$PYTHON" -m pip install pyinstaller pywebview -q
 
   # 确保 macOS 菜单栏托盘依赖存在（pystray + Pillow + pyobjc）
   if [[ "$(uname)" == "Darwin" ]]; then
@@ -38,6 +38,9 @@ else
     "$PYTHON" -m pip install pystray Pillow pyobjc -q
   fi
 fi
+
+step "生成桌面端图标..."
+"$PYTHON" scripts/generate_desktop_icons.py
 
 step "开始打包（onedir 模式，首次约 5-10 分钟）..."
 
