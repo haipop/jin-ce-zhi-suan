@@ -5,40 +5,49 @@ from src.utils.mysql_provider import MysqlProvider
 from src.utils.postgres_provider import PostgresProvider
 from src.utils.duckdb_provider import DuckDbProvider
 from src.utils.tdx_provider import TdxProvider
+from src.utils.baostock_provider import BaostockProvider
+from src.utils.jqdata_provider import JqdataProvider
 import pandas as pd
 import tushare as ts
 
 class DataFactory:
     """
     统一数据源工厂类 (DataFactory)
-    
+
     使用说明:
-    1. 实例化 DataFactory，指定数据源类型 ('tushare', 'akshare', 'mysql', 'default')。
+    1. 实例化 DataFactory，指定数据源类型 ('tushare', 'akshare', 'baostock', 'jqdata', 'mysql', 'postgresql', 'duckdb', 'tdx', 'default')。
     2. 如果使用 tushare，需要提供 token。
-    3. 调用 get_provider() 获取具体的 Provider 实例。
-    4. 使用 fetch_minute_data() 或 get_latest_bar() 获取数据。
-    
+    3. 如果使用 jqdata，需要提供 username 和 password。
+    4. 调用 get_provider() 获取具体的 Provider 实例。
+    5. 使用 fetch_minute_data() 或 get_latest_bar() 获取数据。
+
     示例:
     factory = DataFactory(source='tushare', tushare_token='YOUR_TOKEN')
     provider = factory.get_provider()
     df = provider.fetch_minute_data('000001.SZ', start_date, end_date)
     """
-    
-    def __init__(self, source='akshare', tushare_token=None):
+
+    def __init__(self, source='akshare', tushare_token=None, jqdata_username=None, jqdata_password=None):
         self.source = source
         self.tushare_token = tushare_token
+        self.jqdata_username = jqdata_username
+        self.jqdata_password = jqdata_password
         self.provider = self._create_provider()
-        
+
     def _create_provider(self):
         if self.source == 'tushare':
             if not self.tushare_token:
-                # Try to load from env or config if not provided? 
+                # Try to load from env or config if not provided?
                 # For encapsulation, better to fail or warn.
                 print("Warning: Tushare source selected but no token provided.")
             return TushareProvider(token=self.tushare_token)
-            
+
         elif self.source == 'akshare':
             return AkshareProvider()
+        elif self.source == 'baostock':
+            return BaostockProvider()
+        elif self.source == 'jqdata':
+            return JqdataProvider(username=self.jqdata_username, password=self.jqdata_password)
         elif self.source == 'mysql':
             return MysqlProvider()
         elif self.source == 'postgresql':
@@ -47,12 +56,12 @@ class DataFactory:
             return DuckDbProvider()
         elif self.source == 'tdx':
             return TdxProvider()
-            
+
         else:
             return DataProvider()
-            
+
     def get_provider(self):
         return self.provider
 
 # 导出工具类，方便外部直接 import 使用
-__all__ = ['DataFactory', 'TushareProvider', 'AkshareProvider', 'MysqlProvider', 'PostgresProvider', 'DuckDbProvider', 'TdxProvider', 'DataProvider']
+__all__ = ['DataFactory', 'TushareProvider', 'AkshareProvider', 'BaostockProvider', 'JqdataProvider', 'MysqlProvider', 'PostgresProvider', 'DuckDbProvider', 'TdxProvider', 'DataProvider']
